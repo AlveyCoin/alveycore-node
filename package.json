@@ -1,13 +1,13 @@
 {
   "name": "alveycore-node",
   "description": "Full node with extended capabilities using Alveycore and Alveycoin Core",
-  "author": "ALV <foundation@alvey.org>",
+  "author": "ALV <contact@alveychain.com>",
   "version": "0.0.7",
   "main": "./index.js",
-  "repository": "https://github.com/alveyproject/alveycore-node.git",
-  "homepage": "https://github.com/alveyproject/alveycore-node",
+  "repository": "https://github.com/alveycoin/alveycore-node.git",
+  "homepage": "https://github.com/alveycoin/alveycore-node",
   "bugs": {
-    "url": "https://github.com/alveyproject/alveycore-node/issues"
+    "url": "https://github.com/alveycoin/alveycore-node/issues"
   },
   "contributors": [],
   "bin": {
@@ -35,8 +35,8 @@
     "lru-cache": "^4.0.1",
     "mkdirp": "0.5.0",
     "path-is-absolute": "^1.0.0",
-    "alveycore-lib": "https://github.com/alveyproject/alveycore-lib.git#master",
-    "alveyd-rpc": "https://github.com/alveyproject/alveyd-rpc.git#master",
+    "alveycore-lib": "https://github.com/alveycoin/alveycore-lib.git#master",
+    "alveyd-rpc": "https://github.com/alveycoin/alveyd-rpc.git#master",
     "semver": "^5.0.1",
     "socket.io": "^1.4.5",
     "socket.io-client": "^1.4.5",
