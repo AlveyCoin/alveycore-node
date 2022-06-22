@@ -1,4 +1,4 @@
-# Qtumcoin Service
+# Alveycoin Service
 
 ## Configuration
 
@@ -288,7 +288,7 @@ The `summary` will have the format (values are in satoshis):
 
 
 ## Events
-The Qtum Service exposes two events via the Bus, and there are a few events that can be directly registered:
+The Alvey Service exposes two events via the Bus, and there are a few events that can be directly registered:
 
 ```js
 node.services.alveyd.on('tip', function(blockHash) {

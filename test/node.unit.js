@@ -10,7 +10,7 @@ var BaseService = require('../lib/service');
 var index = require('../lib');
 var log = index.log;
 
-describe('Qtumcore Node', function() {
+describe('Alveycore Node', function() {
 
   var baseConfig = {};
 

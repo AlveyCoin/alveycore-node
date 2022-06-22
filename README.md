@@ -1,4 +1,4 @@
-Qtumcore Node
+Alveycore Node
 ============
 
 A ALV full node for building applications and services with Node.js. A node is extensible and can be configured to run additional services.
@@ -77,7 +77,7 @@ A ALV full node for building applications and services with Node.js. A node is e
 
 ## Add-on Services
 
-There are several add-on services available to extend the functionality of Qtumcore:
+There are several add-on services available to extend the functionality of Alveycore:
 
 - [ALV Insight API](https://github.com/alveyproject/insight-api)
 - [ALV Explorer](https://github.com/alveyproject/alvey-explorer)

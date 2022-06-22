@@ -15,7 +15,7 @@ A node represents a collection of services that are loaded together. For more in
 ```js
 
 var index = require('alveycore-node');
-var Qtum = index.services.Qtum;
+var Alvey = index.services.Alvey;
 var Node = index.Node;
 
 var configuration = {
@@ -24,7 +24,7 @@ var configuration = {
   services: [
     {
       name: 'alveyd',
-      module: Qtum,
+      module: Alvey,
       config: {}
     }
   ]
@@ -37,7 +37,7 @@ node.start(function() {
 });
 
 node.on('ready', function() {
-  console.log('Qtumcoin Node Ready');
+  console.log('Alveycoin Node Ready');
 });
 
 node.on('error', function(err) {

@@ -1,6 +1,6 @@
 {
   "name": "alveycore-node",
-  "description": "Full node with extended capabilities using Qtumcore and Qtumcoin Core",
+  "description": "Full node with extended capabilities using Alveycore and Alveycoin Core",
   "author": "ALV <foundation@alvey.org>",
   "version": "0.0.7",
   "main": "./index.js",

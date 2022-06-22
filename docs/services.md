@@ -37,7 +37,7 @@ If, instead, you would like to run a custom node, you can include services by in
 var alveycore = require('alveycore-node');
 
 //Services
-var Qtum = alveycore.services.Qtum;
+var Alvey = alveycore.services.Alvey;
 var Web = alveycore.services.Web;
 
 var myNode = new alveycore.Node({
@@ -45,7 +45,7 @@ var myNode = new alveycore.Node({
   services: [
     {
       name: 'alveyd',
-      module: Qtum,
+      module: Alvey,
       config: {
         spawn: {
           datadir: '/home/<username>/.alvey',

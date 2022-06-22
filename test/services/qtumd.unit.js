@@ -19,14 +19,14 @@ var errors = index.errors;
 
 var Transaction = alveycore.Transaction;
 var readFileSync = sinon.stub().returns(fs.readFileSync(path.resolve(__dirname, '../data/alvey.conf')));
-var QtumService = proxyquire('../../lib/services/alveyd', {
+var AlveyService = proxyquire('../../lib/services/alveyd', {
 	fs: {
 		readFileSync: readFileSync
 	}
 });
-var defaultQtumConf = fs.readFileSync(path.resolve(__dirname, '../data/default.alvey.conf'), 'utf8');
+var defaultAlveyConf = fs.readFileSync(path.resolve(__dirname, '../data/default.alvey.conf'), 'utf8');
 
-describe('Qtum Service', function() {
+describe('Alvey Service', function() {
 	var txhex = '02000000018729e1903754b645c41cba1e5f9d9ccf9e3a1567c05def83c65f53157787bb19010000004847304402202379f2c157d515d525c9f14816be05747ac0bd385c2a32b0e882939fc3f81a530220720af854c1289fd0b034ff06f16e40db79f366ab3804314887e8f52d41f9991601ffffffff0b00000000000000000080119ff4020000002321034ac19f491683092a923138b52e2b36f2b7a182a931dd6a68d5641be37b78857fac005a6202000000001976a914e3c8033c2a416030ff221760542ba84ee5b9f43c88ac005a6202000000001976a914b6f603e399f673fee1ff82d27292a918f24b8e4a88ac005a6202000000001976a9148fde54e036a40c99c096dd65dfb29023bd96101288ac005a6202000000001976a9142e10fe88d6e075ad44a42f5c941599240aeba5fb88ac005a6202000000001976a914795607d424e0b6091b187cfa4a31a5b7a596791688ac005a6202000000001976a914edf2d506a7ba1966b858631accf8de3da157555688ac005a6202000000001976a9149d7c71eff196e749c5ec71277f50d4aef006e4f988ac005a6202000000001976a914c6c08d9ecb35760356219860553bfc7c19c26b4488ac005a6202000000001976a91439d41c6c7c944c196852928721ad2e623442e9ba88ac00000000';
 
 	var baseConfig = {
@@ -41,15 +41,15 @@ describe('Qtum Service', function() {
 
 	describe('@constructor', function() {
 		it('will create an instance', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			should.exist(alveyd);
 		});
 		it('will create an instance without `new`', function() {
-			var alveyd = QtumService(baseConfig);
+			var alveyd = AlveyService(baseConfig);
 			should.exist(alveyd);
 		});
 		it('will init caches', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			should.exist(alveyd.utxosCache);
 			should.exist(alveyd.txidsCache);
@@ -95,14 +95,14 @@ describe('Qtum Service', function() {
 			should.equal(alveyd.zmqSubscribeProgress, 0.9999);
 		});
 		it('will init clients', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.should.deep.equal([]);
 			alveyd.nodesIndex.should.equal(0);
 			alveyd.nodes.push({ client: sinon.stub() });
 			should.exist(alveyd.client);
 		});
 		it('will set subscriptions', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.subscriptions.should.deep.equal({
 				address: {},
 				rawtransaction: [],
@@ -114,7 +114,7 @@ describe('Qtum Service', function() {
 
 	describe('#_initDefaults', function() {
 		it('will set transaction concurrency', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._initDefaults({ transactionConcurrency: 10 });
 			alveyd.transactionConcurrency.should.equal(10);
 			alveyd._initDefaults({});
@@ -124,13 +124,13 @@ describe('Qtum Service', function() {
 
 	describe('@dependencies', function() {
 		it('will have no dependencies', function() {
-			QtumService.dependencies.should.deep.equal([]);
+			AlveyService.dependencies.should.deep.equal([]);
 		});
 	});
 
 	describe('#getAPIMethods', function() {
 		it('will return spec', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var methods = alveyd.getAPIMethods();
 			should.exist(methods);
 			methods.length.should.equal(33);
@@ -139,7 +139,7 @@ describe('Qtum Service', function() {
 
 	describe('#getPublishEvents', function() {
 		it('will return spec', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var events = alveyd.getPublishEvents();
 			should.exist(events);
 			events.length.should.equal(4);
@@ -166,7 +166,7 @@ describe('Qtum Service', function() {
 
 		});
 		it('will call subscribe/unsubscribe with correct args', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.subscribe = sinon.stub();
 			alveyd.unsubscribe = sinon.stub();
 			var events = alveyd.getPublishEvents();
@@ -198,7 +198,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will push to subscriptions', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter = {};
 			alveyd.subscribe('hashblock', emitter);
 			alveyd.subscriptions.hashblock[0].should.equal(emitter);
@@ -218,7 +218,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will remove item from subscriptions', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = {};
 			var emitter2 = {};
 			var emitter3 = {};
@@ -239,7 +239,7 @@ describe('Qtum Service', function() {
 			alveyd.subscriptions.hashblock[3].should.equal(emitter5);
 		});
 		it('will not remove item an already unsubscribed item', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = {};
 			var emitter3 = {};
 			alveyd.subscriptions.hashblock = [emitter1];
@@ -258,19 +258,19 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will not an invalid address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter = new EventEmitter();
 			alveyd.subscribeAddress(emitter, ['invalidaddress']);
 			should.not.exist(alveyd.subscriptions.address['invalidaddress']);
 		});
 		it('will add a valid address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter = new EventEmitter();
 			alveyd.subscribeAddress(emitter, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 			should.exist(alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 		});
 		it('will handle multiple address subscribers', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscribeAddress(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -279,7 +279,7 @@ describe('Qtum Service', function() {
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'].length.should.equal(2);
 		});
 		it('will not add the same emitter twice', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			alveyd.subscribeAddress(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 			alveyd.subscribeAddress(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -297,7 +297,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('it will remove a subscription', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscribeAddress(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -308,7 +308,7 @@ describe('Qtum Service', function() {
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'].length.should.equal(1);
 		});
 		it('will unsubscribe subscriptions for an emitter', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -316,7 +316,7 @@ describe('Qtum Service', function() {
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'].length.should.equal(1);
 		});
 		it('will NOT unsubscribe subscription with missing address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -324,7 +324,7 @@ describe('Qtum Service', function() {
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'].length.should.equal(2);
 		});
 		it('will NOT unsubscribe subscription with missing emitter', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter2];
@@ -333,7 +333,7 @@ describe('Qtum Service', function() {
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'][0].should.equal(emitter2);
 		});
 		it('will remove empty addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -342,7 +342,7 @@ describe('Qtum Service', function() {
 			should.not.exist(alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 		});
 		it('will unsubscribe emitter for all addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -364,7 +364,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will unsubscribe emitter for all addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.address['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -381,9 +381,9 @@ describe('Qtum Service', function() {
 
 	describe('#_getDefaultConfig', function() {
 		it('will generate config file from defaults', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = alveyd._getDefaultConfig();
-			config.should.equal(defaultQtumConf);
+			config.should.equal(defaultAlveyConf);
 		});
 	});
 
@@ -398,7 +398,7 @@ describe('Qtum Service', function() {
 
 
 		it('will parse a alvey.conf file', function() {
-			var TestQtum = proxyquire('../../lib/services/alveyd', {
+			var TestAlvey = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync,
 					existsSync: sinon.stub().returns(true),
@@ -408,7 +408,7 @@ describe('Qtum Service', function() {
 					sync: sinon.stub()
 				}
 			});
-			var alveyd = new TestQtum(baseConfig);
+			var alveyd = new TestAlvey(baseConfig);
 			alveyd.options.spawn.datadir = '/tmp/.alvey';
 
 			sinon.spy(alveyd, '_expandRelativeDatadir');
@@ -449,7 +449,7 @@ describe('Qtum Service', function() {
 		});
 
 		it('will expand relative datadir to absolute path', function() {
-			var TestQtum = proxyquire('../../lib/services/alveyd', {
+			var TestAlvey = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync,
 					existsSync: sinon.stub().returns(true),
@@ -469,7 +469,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new TestQtum(config);
+			var alveyd = new TestAlvey(config);
 
 			sinon.spy(alveyd, '_expandRelativeDatadir');
 			sinon.spy(alveyd, '_checkConfigIndexes');
@@ -490,7 +490,7 @@ describe('Qtum Service', function() {
 			alveyd.options.spawn.datadir.should.equal('/tmp/.alveycore/data');
 		});
 		it('should throw an exception if txindex isn\'t enabled in the configuration', function() {
-			var TestQtum = proxyquire('../../lib/services/alveyd', {
+			var TestAlvey = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: sinon.stub().returns(fs.readFileSync(__dirname + '/../data/badalvey.conf')),
 					existsSync: sinon.stub().returns(true),
@@ -499,16 +499,16 @@ describe('Qtum Service', function() {
 					sync: sinon.stub()
 				}
 			});
-			var alveyd = new TestQtum(baseConfig);
+			var alveyd = new TestAlvey(baseConfig);
 			(function() {
 				alveyd._loadSpawnConfiguration({ datadir: './test' });
 			}).should.throw(alveycore.errors.InvalidState);
 		});
 		it('should NOT set https options if node https options are set', function() {
 			var writeFileSync = function(path, config) {
-				config.should.equal(defaultQtumConf);
+				config.should.equal(defaultAlveyConf);
 			};
-			var TestQtum = proxyquire('../../lib/services/alveyd', {
+			var TestAlvey = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					writeFileSync: writeFileSync,
 					readFileSync: readFileSync,
@@ -534,7 +534,7 @@ describe('Qtum Service', function() {
 					exec: 'testexec'
 				}
 			};
-			var alveyd = new TestQtum(config);
+			var alveyd = new TestAlvey(config);
 			alveyd.options.spawn.datadir = '/tmp/.alvey';
 			var node = {};
 			alveyd._loadSpawnConfiguration(node);
@@ -550,7 +550,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('should warn the user if txindex isn\'t set to 1 in the alvey.conf file', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = {
 				txindex: 0,
 				addressindex: 1,
@@ -566,7 +566,7 @@ describe('Qtum Service', function() {
 			}).should.throw('"txindex" option');
 		});
 		it('should warn the user if addressindex isn\'t set to 1 in the alvey.conf file', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = {
 				txindex: 1,
 				addressindex: 0,
@@ -582,7 +582,7 @@ describe('Qtum Service', function() {
 			}).should.throw('"addressindex" option');
 		});
 		it('should warn the user if spentindex isn\'t set to 1 in the alvey.conf file', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = {
 				txindex: 1,
 				addressindex: 1,
@@ -598,7 +598,7 @@ describe('Qtum Service', function() {
 			}).should.throw('"spentindex" option');
 		});
 		it('should warn the user if server isn\'t set to 1 in the alvey.conf file', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = {
 				txindex: 1,
 				addressindex: 1,
@@ -614,7 +614,7 @@ describe('Qtum Service', function() {
 			}).should.throw('"server" option');
 		});
 		it('should warn the user if reindex is set to 1 in the alvey.conf file', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = {
 				txindex: 1,
 				addressindex: 1,
@@ -630,7 +630,7 @@ describe('Qtum Service', function() {
 			node._reindex.should.equal(true);
 		});
 		it('should warn if zmq port and hosts do not match', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var config = {
 				txindex: 1,
 				addressindex: 1,
@@ -649,7 +649,7 @@ describe('Qtum Service', function() {
 
 	describe('#_resetCaches', function() {
 		it('will reset LRU caches', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var keys = [];
 			for (var i = 0; i < 10; i++) {
 				keys.push(crypto.randomBytes(32));
@@ -681,7 +681,7 @@ describe('Qtum Service', function() {
 
 	describe('#_tryAllClients', function() {
 		it('will retry for each node client', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.tryAllInterval = 1;
 			alveyd.nodes.push({
 				client: {
@@ -711,7 +711,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will start using the current node index (round-robin)', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.tryAllInterval = 1;
 			alveyd.nodes.push({
 				client: {
@@ -742,7 +742,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get error if all clients fail', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.tryAllInterval = 1;
 			alveyd.nodes.push({
 				client: {
@@ -772,7 +772,7 @@ describe('Qtum Service', function() {
 
 	describe('#_wrapRPCError', function() {
 		it('will convert alveyd-rpc error object into JavaScript error', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var error = alveyd._wrapRPCError({ message: 'Test error', code: -1 });
 			error.should.be.an.instanceof(errors.RPCError);
 			error.code.should.equal(-1);
@@ -789,7 +789,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will set height and genesis buffer', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var genesisBuffer = new Buffer([]);
 			alveyd.getRawBlock = sinon.stub().callsArgWith(1, null, genesisBuffer);
 			alveyd.nodes.push({
@@ -825,7 +825,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will handle error from getBestBlockHash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, { code: -1, message: 'error' });
 			alveyd.nodes.push({
 				client: {
@@ -839,7 +839,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will handle error from getBlock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {});
 			var getBlock = sinon.stub().callsArgWith(1, { code: -1, message: 'error' });
 			alveyd.nodes.push({
@@ -856,7 +856,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will handle error from getBlockHash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {});
 			var getBlock = sinon.stub().callsArgWith(1, null, {
 				result: {
@@ -880,7 +880,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will handle error from getRawBlock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {});
 			var getBlock = sinon.stub().callsArgWith(1, null, {
 				result: {
@@ -922,7 +922,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd._getDefaultConf().rpcport.should.equal(8332);
 		});
 		it('will get default rpc port for testnet', function() {
@@ -935,7 +935,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd._getDefaultConf().rpcport.should.equal(18332);
 		});
 		it('will get default rpc port for regtest', function() {
@@ -949,7 +949,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd._getDefaultConf().rpcport.should.equal(18332);
 		});
 	});
@@ -969,7 +969,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			should.equal(alveyd._getNetworkConfigPath(), undefined);
 		});
 		it('will get default rpc port for testnet', function() {
@@ -982,7 +982,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd._getNetworkConfigPath().should.equal('testnet3/alvey.conf');
 		});
 		it('will get default rpc port for regtest', function() {
@@ -996,7 +996,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd._getNetworkConfigPath().should.equal('regtest/alvey.conf');
 		});
 	});
@@ -1007,18 +1007,18 @@ describe('Qtum Service', function() {
 			baseConfig.node.network = alveycore.Networks.testnet;
 		});
 		it('return --testnet for testnet', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.node.network = alveycore.Networks.testnet;
 			alveyd._getNetworkOption().should.equal('--testnet');
 		});
 		it('return --regtest for testnet', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.node.network = alveycore.Networks.testnet;
 			alveycore.Networks.enableRegtest();
 			alveyd._getNetworkOption().should.equal('--regtest');
 		});
 		it('return undefined for livenet', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.node.network = alveycore.Networks.livenet;
 			alveycore.Networks.enableRegtest();
 			should.equal(alveyd._getNetworkOption(), undefined);
@@ -1027,7 +1027,7 @@ describe('Qtum Service', function() {
 
 	describe('#_zmqBlockHandler', function() {
 		it('will emit block', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {};
 			var message = new Buffer('76843f1dfe455347d897e757ff5ff51a16a0f62b5d02a659c5680392de3a2b89', 'hex');
 			alveyd._rapidProtectedUpdateTip = sinon.stub();
@@ -1039,7 +1039,7 @@ describe('Qtum Service', function() {
 			alveyd._rapidProtectedUpdateTip.callCount.should.equal(1);
 		});
 		it('will not emit same block twice', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {};
 			var message = new Buffer('76843f1dfe455347d897e757ff5ff51a16a0f62b5d02a659c5680392de3a2b89', 'hex');
 			alveyd._rapidProtectedUpdateTip = sinon.stub();
@@ -1054,7 +1054,7 @@ describe('Qtum Service', function() {
 			alveyd._zmqBlockHandler(node, message);
 		});
 		it('will call function to update tip', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {};
 			var message = new Buffer('76843f1dfe455347d897e757ff5ff51a16a0f62b5d02a659c5680392de3a2b89', 'hex');
 			alveyd._rapidProtectedUpdateTip = sinon.stub();
@@ -1064,7 +1064,7 @@ describe('Qtum Service', function() {
 			alveyd._rapidProtectedUpdateTip.args[0][1].should.equal(message);
 		});
 		it('will emit to subscribers', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {};
 			var message = new Buffer('76843f1dfe455347d897e757ff5ff51a16a0f62b5d02a659c5680392de3a2b89', 'hex');
 			alveyd._rapidProtectedUpdateTip = sinon.stub();
@@ -1083,7 +1083,7 @@ describe('Qtum Service', function() {
 
 	describe('#_rapidProtectedUpdateTip', function() {
 		it('will limit tip updates with rapid calls', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var callCount = 0;
 			alveyd._updateTip = function() {
 				callCount++;
@@ -1117,7 +1117,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('log and emit rpc error from get block', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub();
 			sinon.spy(alveyd, '_resetCaches');
 			alveyd.on('error', function(err) {
@@ -1136,7 +1136,7 @@ describe('Qtum Service', function() {
 			alveyd._updateTip(node, message);
 		});
 		it('emit synced if percentage is 100', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, null, 100);
 			alveyd.on('synced', function() {
 				alveyd.syncPercentage.callCount.should.equal(1);
@@ -1151,7 +1151,7 @@ describe('Qtum Service', function() {
 			alveyd._updateTip(node, message);
 		});
 		it('NOT emit synced if percentage is less than 100', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, null, 99);
 			alveyd.on('synced', function() {
 				alveyd.syncPercentage.callCount.should.equal(0);
@@ -1168,7 +1168,7 @@ describe('Qtum Service', function() {
 			done();
 		});
 		it('log and emit error from syncPercentage', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, new Error('test'));
 			alveyd.on('error', function(err) {
 				log.error.callCount.should.equal(1);
@@ -1185,7 +1185,7 @@ describe('Qtum Service', function() {
 			alveyd._updateTip(node, message);
 		});
 		it('reset caches and set height', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub();
 			alveyd._resetCaches = sinon.stub();
 			alveyd.on('tip', function(height) {
@@ -1206,7 +1206,7 @@ describe('Qtum Service', function() {
 			alveyd._updateTip(node, message);
 		});
 		it('will NOT update twice for the same hash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, 'emit');
 			alveyd.syncPercentage = sinon.stub();
 			alveyd._resetCaches = sinon.stub();
@@ -1236,7 +1236,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd.syncPercentage = sinon.stub();
 			alveyd._resetCaches = sinon.stub();
 			alveyd.node.stopping = true;
@@ -1259,7 +1259,7 @@ describe('Qtum Service', function() {
 
 	describe('#_getAddressesFromTransaction', function() {
 		it('will get results using alveycore.Transaction', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var wif = 'cVTiUNavxbCzuoaQboDcgEhKYHhgXRaeQ8ZRoYkVXE9mxT1TcSrc';
 			var privkey = alveycore.PrivateKey.fromWIF(wif);
 			var inputAddress = privkey.toAddress(alveycore.Networks.testnet);
@@ -1280,7 +1280,7 @@ describe('Qtum Service', function() {
 			addresses[1].should.equal(outputAddress.toString());
 		});
 		it('will handle non-standard script types', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var tx = alveycore.Transaction();
 			tx.addInput(alveycore.Transaction.Input({
 				prevTxId: '63ea7d22cb412283f4c6964a0fddebf3069f2e8a4761e86b5d0e2a39b0e84e5c',
@@ -1299,7 +1299,7 @@ describe('Qtum Service', function() {
 			addresses.length.should.equal(0);
 		});
 		it('will handle unparsable script types or missing input script', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var tx = alveycore.Transaction();
 			tx.addOutput(alveycore.Transaction.Output({
 				script: new Buffer('4c', 'hex'),
@@ -1309,7 +1309,7 @@ describe('Qtum Service', function() {
 			addresses.length.should.equal(0);
 		});
 		it('will return unique values', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var tx = alveycore.Transaction();
 			var address = alveycore.Address('qNq9mhTgH7KzKKDDwQ87Ain7mtyktheXyX');
 			tx.addOutput(alveycore.Transaction.Output({
@@ -1327,7 +1327,7 @@ describe('Qtum Service', function() {
 
 	describe('#_notifyAddressTxidSubscribers', function() {
 		it('will emit event if matching addresses', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var address = 'qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z';
 			alveyd._getAddressesFromTransaction = sinon.stub().returns([address]);
 			var emitter = new EventEmitter();
@@ -1344,7 +1344,7 @@ describe('Qtum Service', function() {
 			alveyd._notifyAddressTxidSubscribers(txid, transaction);
 		});
 		it('will NOT emit event without matching addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var address = 'qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z';
 			alveyd._getAddressesFromTransaction = sinon.stub().returns([address]);
 			var emitter = new EventEmitter();
@@ -1358,7 +1358,7 @@ describe('Qtum Service', function() {
 
 	describe('#_zmqTransactionHandler', function() {
 		it('will emit to subscribers', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var expectedBuffer = new Buffer(txhex, 'hex');
 			var emitter = new EventEmitter();
 			alveyd.subscriptions.rawtransaction.push(emitter);
@@ -1371,7 +1371,7 @@ describe('Qtum Service', function() {
 			alveyd._zmqTransactionHandler(node, expectedBuffer);
 		});
 		it('will NOT emit to subscribers more than once for the same tx', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var expectedBuffer = new Buffer(txhex, 'hex');
 			var emitter = new EventEmitter();
 			sinon.spy(alveyd, 'emit');
@@ -1384,7 +1384,7 @@ describe('Qtum Service', function() {
 			alveyd._zmqTransactionHandler(node, expectedBuffer);
 		});
 		it('will emit "tx" event', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var expectedBuffer = new Buffer(txhex, 'hex');
 			alveyd.on('tx', function(buffer) {
 				buffer.should.be.instanceof(Buffer);
@@ -1395,7 +1395,7 @@ describe('Qtum Service', function() {
 			alveyd._zmqTransactionHandler(node, expectedBuffer);
 		});
 		it('will NOT emit "tx" event more than once for the same tx', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var expectedBuffer = new Buffer(txhex, 'hex');
 			alveyd.on('tx', function() {
 				done();
@@ -1415,7 +1415,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('log errors, update tip and subscribe to zmq events', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._updateTip = sinon.stub();
 			alveyd._subscribeZmqEvents = sinon.stub();
 			var blockEvents = 0;
@@ -1471,7 +1471,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, { code: -1, message: 'error' });
 			var node = {
 				_tipUpdateInterval: 1,
@@ -1491,7 +1491,7 @@ describe('Qtum Service', function() {
 		});
 
 		it('will not set interval if synced is true', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._updateTip = sinon.stub();
 			alveyd._subscribeZmqEvents = sinon.stub();
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {
@@ -1521,7 +1521,7 @@ describe('Qtum Service', function() {
 
 	describe('#_subscribeZmqEvents', function() {
 		it('will call subscribe on zmq socket', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {
 				zmqSubSocket: {
 					subscribe: sinon.stub(),
@@ -1535,7 +1535,7 @@ describe('Qtum Service', function() {
 		});
 
 		it('will call relevant handler for rawtx topics', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._zmqTransactionHandler = sinon.stub();
 			var node = {
 				zmqSubSocket: new EventEmitter()
@@ -1551,7 +1551,7 @@ describe('Qtum Service', function() {
 			node.zmqSubSocket.emit('message', topic, message);
 		});
 		it('will call relevant handler for hashblock topics', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._zmqBlockHandler = sinon.stub();
 			var node = {
 				zmqSubSocket: new EventEmitter()
@@ -1567,7 +1567,7 @@ describe('Qtum Service', function() {
 			node.zmqSubSocket.emit('message', topic, message);
 		});
 		it('will ignore unknown topic types', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._zmqBlockHandler = sinon.stub();
 			alveyd._zmqTransactionHandler = sinon.stub();
 			var node = {
@@ -1594,12 +1594,12 @@ describe('Qtum Service', function() {
 			var socketFunc = function() {
 				return socket;
 			};
-			var QtumService = proxyquire('../../lib/services/alveyd', {
+			var AlveyService = proxyquire('../../lib/services/alveyd', {
 				zmq: {
 					socket: socketFunc
 				}
 			});
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {};
 			alveyd._initZmqSubSocket(node, 'url');
 			node.zmqSubSocket.should.equal(socket);
@@ -1620,7 +1620,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('give error from client getblockchaininfo', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {
 				_reindex: true,
 				_reindexWait: 1,
@@ -1636,7 +1636,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will wait until sync is 100 percent', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var percent = 0.89;
 			var node = {
 				_reindex: true,
@@ -1659,7 +1659,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call callback if reindex is not enabled', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {
 				_reindex: false
 			};
@@ -1679,7 +1679,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will give rpc error from client getbestblockhash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, { code: -1, message: 'Test error' });
 			var node = {
 				client: {
@@ -1693,7 +1693,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give rpc error from client getblock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {
 				result: '45c766f3deda5027e99df3f4b437ca1874143efdddcc09261f9e7466a4b38629'
 			});
@@ -1712,7 +1712,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will log when error is RPC_IN_WARMUP', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, { code: -28, message: 'Verifying blocks...' });
 			var node = {
 				client: {
@@ -1726,7 +1726,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will set height and emit tip', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {
 				result: '45c766f3deda5027e99df3f4b437ca1874143efdddcc09261f9e7466a4b38629'
 			});
@@ -1770,12 +1770,12 @@ describe('Qtum Service', function() {
 			var error = new Error('Test error');
 			error.code = 'ENOENT';
 			readFile.onCall(1).callsArgWith(2, error);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFile: readFile
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd.spawnStopTime = 1;
 			alveyd._process = {};
 			alveyd._process.kill = sinon.stub();
@@ -1794,12 +1794,12 @@ describe('Qtum Service', function() {
 			var error = new Error('Test error');
 			error.code = 'ENOENT';
 			readFile.onCall(1).callsArgWith(2, error);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFile: readFile
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd.spawnStopTime = 1;
 			alveyd._process = {};
 			var error2 = new Error('Test error');
@@ -1817,12 +1817,12 @@ describe('Qtum Service', function() {
 		it('it will attempt to kill process with NaN', function(done) {
 			var readFile = sandbox.stub();
 			readFile.onCall(0).callsArgWith(2, null, '     ');
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFile: readFile
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd.spawnStopTime = 1;
 			alveyd._process = {};
 			alveyd._process.kill = sinon.stub();
@@ -1836,12 +1836,12 @@ describe('Qtum Service', function() {
 		it('it will attempt to kill process without pid', function(done) {
 			var readFile = sandbox.stub();
 			readFile.onCall(0).callsArgWith(2, null, '');
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFile: readFile
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd.spawnStopTime = 1;
 			alveyd._process = {};
 			alveyd._process.kill = sinon.stub();
@@ -1865,7 +1865,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will give error from spawn config', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd._loadSpawnConfiguration = sinon.stub().throws(new Error('test'));
 			alveyd._spawnChildProcess(function(err) {
@@ -1876,7 +1876,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from stopSpawnedBitcoin', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd._stopSpawnedBitcoin = sinon.stub().callsArgWith(0, new Error('test'));
 			alveyd._spawnChildProcess(function(err) {
@@ -1898,7 +1898,7 @@ describe('Qtum Service', function() {
 			};
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -1906,7 +1906,7 @@ describe('Qtum Service', function() {
 					spawn: spawn
 				}
 			});
-			var alveyd = new TestQtumService(config);
+			var alveyd = new TestAlveyService(config);
 			alveyd.spawn = {};
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd._stopSpawnedBitcoin = sinon.stub().callsArgWith(0, null);
@@ -1919,7 +1919,7 @@ describe('Qtum Service', function() {
 		it('will include network with spawn command and init zmq/rpc on node', function(done) {
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -1927,7 +1927,7 @@ describe('Qtum Service', function() {
 					spawn: spawn
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd.spawn = {};
@@ -1970,7 +1970,7 @@ describe('Qtum Service', function() {
 		it('will respawn alveyd spawned process', function(done) {
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -1978,7 +1978,7 @@ describe('Qtum Service', function() {
 					spawn: spawn
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd.spawn = {};
 			alveyd.spawn.exec = 'alveyd';
@@ -2008,7 +2008,7 @@ describe('Qtum Service', function() {
 		it('will emit error during respawn', function(done) {
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -2016,7 +2016,7 @@ describe('Qtum Service', function() {
 					spawn: spawn
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd.spawn = {};
 			alveyd.spawn.exec = 'alveyd';
@@ -2046,7 +2046,7 @@ describe('Qtum Service', function() {
 		it('will NOT respawn alveyd spawned process if shutting down', function(done) {
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -2063,7 +2063,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new TestQtumService(config);
+			var alveyd = new TestAlveyService(config);
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd.spawn = {};
 			alveyd.spawn.exec = 'alveyd';
@@ -2094,7 +2094,7 @@ describe('Qtum Service', function() {
 		it('will give error after 60 retries', function(done) {
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -2102,7 +2102,7 @@ describe('Qtum Service', function() {
 					spawn: spawn
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 			alveyd.startRetryInterval = 1;
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd.spawn = {};
@@ -2124,7 +2124,7 @@ describe('Qtum Service', function() {
 		it('will give error from check reindex', function(done) {
 			var process = new EventEmitter();
 			var spawn = sinon.stub().returns(process);
-			var TestQtumService = proxyquire('../../lib/services/alveyd', {
+			var TestAlveyService = proxyquire('../../lib/services/alveyd', {
 				fs: {
 					readFileSync: readFileSync
 				},
@@ -2132,7 +2132,7 @@ describe('Qtum Service', function() {
 					spawn: spawn
 				}
 			});
-			var alveyd = new TestQtumService(baseConfig);
+			var alveyd = new TestAlveyService(baseConfig);
 
 			alveyd._loadSpawnConfiguration = sinon.stub();
 			alveyd.spawn = {};
@@ -2168,7 +2168,7 @@ describe('Qtum Service', function() {
 					exec: 'testpath'
 				}
 			};
-			var alveyd = new QtumService(config);
+			var alveyd = new AlveyService(config);
 			alveyd.node.stopping = true;
 			alveyd.startRetryInterval = 100;
 			alveyd._loadTipFromNode = sinon.stub();
@@ -2180,7 +2180,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from loadTipFromNode after 60 retries', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._loadTipFromNode = sinon.stub().callsArgWith(1, new Error('test'));
 			alveyd.startRetryInterval = 1;
 			var config = {};
@@ -2191,7 +2191,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will init zmq/rpc on node', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._initZmqSubSocket = sinon.stub();
 			alveyd._subscribeZmqEvents = sinon.stub();
 			alveyd._loadTipFromNode = sinon.stub().callsArgWith(1, null);
@@ -2217,16 +2217,16 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will give error if "spawn" and "connect" are both not configured', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.options = {};
 			alveyd.start(function(err) {
 				err.should.be.instanceof(Error);
-				err.message.should.be.a('string').and.equal('Qtum configuration options "spawn" or "connect" are expected');
+				err.message.should.be.a('string').and.equal('Alvey configuration options "spawn" or "connect" are expected');
 				done();
 			});
 		});
 		it('will give error from spawnChildProcess', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._spawnChildProcess = sinon.stub().callsArgWith(0, new Error('test'));
 			alveyd.options = {
 				spawn: {}
@@ -2239,7 +2239,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from connectProcess', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._connectProcess = sinon.stub().callsArgWith(1, new Error('test'));
 			alveyd.options = {
 				connect: [
@@ -2254,7 +2254,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will push node from spawnChildProcess', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var node = {};
 			alveyd._initChain = sinon.stub().callsArg(0);
 			alveyd._spawnChildProcess = sinon.stub().callsArgWith(0, null, node);
@@ -2268,7 +2268,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will push node from connectProcess', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._initChain = sinon.stub().callsArg(0);
 			sinon.spy(alveyd, '_spawnChildProcess');
 			var nodes = [{}];
@@ -2290,7 +2290,7 @@ describe('Qtum Service', function() {
 
 	describe('#isSynced', function() {
 		it('will give error from syncPercentage', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, new Error('test'));
 			alveyd.isSynced(function(err) {
 				should.exist(err);
@@ -2300,7 +2300,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give "true" if percentage is 100.00', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, null, 100.00);
 			alveyd.isSynced(function(err, synced) {
 				if (err) {
@@ -2312,7 +2312,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give "true" if percentage is 99.98', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, null, 99.98);
 			alveyd.isSynced(function(err, synced) {
 				if (err) {
@@ -2324,7 +2324,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give "false" if percentage is 99.49', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, null, 99.49);
 			alveyd.isSynced(function(err, synced) {
 				if (err) {
@@ -2336,7 +2336,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give "false" if percentage is 1', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.syncPercentage = sinon.stub().callsArgWith(0, null, 1);
 			alveyd.isSynced(function(err, synced) {
 				if (err) {
@@ -2351,7 +2351,7 @@ describe('Qtum Service', function() {
 
 	describe('#syncPercentage', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlockchainInfo = sinon.stub().callsArgWith(0, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -2366,7 +2366,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call client getInfo and give result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlockchainInfo = sinon.stub().callsArgWith(0, null, {
 				result: {
 					verificationprogress: '0.983821387'
@@ -2390,12 +2390,12 @@ describe('Qtum Service', function() {
 
 	describe('#_normalizeAddressArg', function() {
 		it('will turn single address into array', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var args = alveyd._normalizeAddressArg('address');
 			args.should.deep.equal(['address']);
 		});
 		it('will keep an array as an array', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var args = alveyd._normalizeAddressArg(['address one', 'address two']);
 			args.should.deep.equal(['address one', 'address two']);
 		});
@@ -2403,7 +2403,7 @@ describe('Qtum Service', function() {
 
 	describe('#getAddressBalance', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			alveyd.nodes.push({
 				client: {
@@ -2419,7 +2419,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give balance', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			var getAddressBalance = sinon.stub().callsArgWith(1, null, {
 				result: {
@@ -2456,7 +2456,7 @@ describe('Qtum Service', function() {
 
 	describe('#getAddressUnspentOutputs', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.push({
 				client: {
 					getAddressUtxos: sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' })
@@ -2473,7 +2473,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give results from client getaddressutxos', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var expectedUtxos = [
 				{
 					"address": "qMYemSxspKpzB2RbDunJRosQv5PJd3eEWD",
@@ -2508,7 +2508,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will use cache', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var expectedUtxos = [
 				{
 					"address": "qMYemSxspKpzB2RbDunJRosQv5PJd3eEWD",
@@ -2579,7 +2579,7 @@ describe('Qtum Service', function() {
 				}
 			];
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var confirmedUtxos = [
 				{
 					"address": "qNq9mhTgH7KzKKDDwQ87Ain7mtyktheXyX",
@@ -2670,7 +2670,7 @@ describe('Qtum Service', function() {
 					"isStake": true
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var confirmedUtxos = [
 				{
 					"address": "qNq9mhTgH7KzKKDDwQ87Ain7mtyktheXyX",
@@ -2761,7 +2761,7 @@ describe('Qtum Service', function() {
 					prevout: 2
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var confirmedUtxos = [
 				{
 					address: 'qNq9mhTgH7KzKKDDwQ87Ain7mtyktheXyX',
@@ -2872,7 +2872,7 @@ describe('Qtum Service', function() {
 					timestamp: 1461342833133
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var confirmedUtxos = [];
 			var getAddressUtxos = sinon.stub().callsArgWith(1, null, {
 				result: confirmedUtxos
@@ -2917,7 +2917,7 @@ describe('Qtum Service', function() {
 					prevout: 1
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var confirmedUtxos = [
 				{
 					address: 'qNq9mhTgH7KzKKDDwQ87Ain7mtyktheXyX',
@@ -2964,7 +2964,7 @@ describe('Qtum Service', function() {
 					timestamp: 1461342707725
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var confirmedUtxos = [
 				{
 					address: 'qNq9mhTgH7KzKKDDwQ87Ain7mtyktheXyX',
@@ -3002,7 +3002,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will handle error from getAddressMempool', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.push({
 				client: {
 					getAddressMempool: sinon.stub().callsArgWith(1, { code: -1, message: 'test' })
@@ -3018,7 +3018,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('should set query mempool if undefined', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getAddressMempool = sinon.stub().callsArgWith(1, { code: -1, message: 'test' });
 			alveyd.nodes.push({
 				client: {
@@ -3036,7 +3036,7 @@ describe('Qtum Service', function() {
 
 	describe('#_getBalanceFromMempool', function() {
 		it('will sum satoshis', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var deltas = [
 				{
 					satoshis: -1000,
@@ -3055,7 +3055,7 @@ describe('Qtum Service', function() {
 
 	describe('#_getTxidsFromMempool', function() {
 		it('will filter to txids', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var deltas = [
 				{
 					txid: 'txid0',
@@ -3074,7 +3074,7 @@ describe('Qtum Service', function() {
 			txids[2].should.equal('txid2');
 		});
 		it('will not include duplicates', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var deltas = [
 				{
 					txid: 'txid0',
@@ -3095,7 +3095,7 @@ describe('Qtum Service', function() {
 
 	describe('#_getHeightRangeQuery', function() {
 		it('will detect range query', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var options = {
 				start: 20,
 				end: 0
@@ -3104,7 +3104,7 @@ describe('Qtum Service', function() {
 			rangeQuery.should.equal(true);
 		});
 		it('will return false:: end < 0', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var options = {
 				start: 20,
 				end: -1
@@ -3113,7 +3113,7 @@ describe('Qtum Service', function() {
 			rangeQuery.should.equal(false);
 		});
 		it('will return false:: start < 0', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var options = {
 				start: -1,
 				end: 0
@@ -3122,7 +3122,7 @@ describe('Qtum Service', function() {
 			rangeQuery.should.equal(false);
 		});
 		it('will get range properties', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var options = {
 				start: 20,
 				end: 0
@@ -3135,7 +3135,7 @@ describe('Qtum Service', function() {
 			clone.start.should.equal(0);
 		});
 		it('will throw error with invalid range', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var options = {
 				start: 0,
 				end: 20
@@ -3148,7 +3148,7 @@ describe('Qtum Service', function() {
 
 	describe('#getAddressTxids', function() {
 		it('will give error from _getHeightRangeQuery', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd._getHeightRangeQuery = sinon.stub().throws(new Error('test'));
 			alveyd.getAddressTxids('address', {}, function(err) {
 				err.should.be.instanceOf(Error);
@@ -3157,7 +3157,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give rpc error from mempool query', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getHeightRangeQuery');
 			sinon.spy(alveyd, '_normalizeAddressArg');
@@ -3177,7 +3177,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give rpc error from txids query', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getHeightRangeQuery');
 			sinon.spy(alveyd, '_normalizeAddressArg');
@@ -3212,7 +3212,7 @@ describe('Qtum Service', function() {
 				"f618aa80803b4db6a6f32a5b8734afa10d3280c7470813ceb09f336d1af6cc47",
 				"668748896009c0a2efaf31a6eeb26e59cdb46aba16ad39c328d7669a84a6631d"
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getHeightRangeQuery');
 			sinon.spy(alveyd, '_normalizeAddressArg');
@@ -3243,7 +3243,7 @@ describe('Qtum Service', function() {
 			var expectedTxids = [
 				'b6b8ac5b726444a3d8a9a32511bdc66aa0eb3767728fd77cbe34ef2502cd7895'
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getHeightRangeQuery');
 			sinon.spy(alveyd, '_normalizeAddressArg');
@@ -3283,7 +3283,7 @@ describe('Qtum Service', function() {
 			var expectedTxids = [
 				'e9dcf22807db77ac0276b03cc2d3a8b03c4837db8ac6650501ef45af1c807cce'
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getHeightRangeQuery');
 			sinon.spy(alveyd, '_normalizeAddressArg');
@@ -3329,7 +3329,7 @@ describe('Qtum Service', function() {
 			var expectedTxids = [
 				'25cfac8c32eee1b9b915984c98eca608c5a3507b3ffdc08fb858fc1d534f3da6'
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getHeightRangeQuery');
 			sinon.spy(alveyd, '_normalizeAddressArg');
@@ -3407,7 +3407,7 @@ describe('Qtum Service', function() {
 		it('should get 0 confirmation', function() {
 			var tx = new Transaction(txhex);
 			tx.height = -1;
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.height = 10;
 			var confirmations = alveyd._getConfirmationsDetail(tx);
 			confirmations.should.equal(0);
@@ -3415,13 +3415,13 @@ describe('Qtum Service', function() {
 		it('should get 1 confirmation', function() {
 			var tx = new Transaction(txhex);
 			tx.height = 10;
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.height = 10;
 			var confirmations = alveyd._getConfirmationsDetail(tx);
 			confirmations.should.equal(1);
 		});
 		it('should get 2 confirmation', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var tx = new Transaction(txhex);
 			alveyd.height = 11;
 			tx.height = 10;
@@ -3429,7 +3429,7 @@ describe('Qtum Service', function() {
 			confirmations.should.equal(2);
 		});
 		it('should get 0 confirmation with overflow', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var tx = new Transaction(txhex);
 			alveyd.height = 3;
 			tx.height = 10;
@@ -3438,7 +3438,7 @@ describe('Qtum Service', function() {
 			confirmations.should.equal(0);
 		});
 		it('should get 1000 confirmation', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var tx = new Transaction(txhex);
 			alveyd.height = 1000;
 			tx.height = 1;
@@ -3449,14 +3449,14 @@ describe('Qtum Service', function() {
 
 	describe('#_getAddressDetailsForInput', function() {
 		it('will return if missing an address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {};
 			alveyd._getAddressDetailsForInput({}, 0, result, []);
 			should.not.exist(result.addresses);
 			should.not.exist(result.satoshis);
 		});
 		it('will only add address if it matches', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {};
 			alveyd._getAddressDetailsForInput({
 				address: 'address1'
@@ -3465,7 +3465,7 @@ describe('Qtum Service', function() {
 			should.not.exist(result.satoshis);
 		});
 		it('will instantiate if outputIndexes not defined', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {
 				addresses: {},
 				satoshis: 10,
@@ -3480,7 +3480,7 @@ describe('Qtum Service', function() {
 			result.satoshis.should.be.equal(5);
 		});
 		it('will push to inputIndexes', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {
 				addresses: {
 					'address1': {
@@ -3498,14 +3498,14 @@ describe('Qtum Service', function() {
 
 	describe('#_getAddressDetailsForOutput', function() {
 		it('will return if missing an address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {};
 			alveyd._getAddressDetailsForOutput({}, 0, result, []);
 			should.not.exist(result.addresses);
 			should.not.exist(result.satoshis);
 		});
 		it('will only add address if it matches', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {};
 			alveyd._getAddressDetailsForOutput({
 				address: 'address1'
@@ -3514,7 +3514,7 @@ describe('Qtum Service', function() {
 			should.not.exist(result.satoshis);
 		});
 		it('will instantiate if outputIndexes not defined with', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {
 				addresses: {},
 				satoshis: 10,
@@ -3529,7 +3529,7 @@ describe('Qtum Service', function() {
 			result.satoshis.should.be.equal(15);
 		});
 		it('will push if outputIndexes defined', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var result = {
 				addresses: {
 					'address1': {
@@ -3579,7 +3579,7 @@ describe('Qtum Service', function() {
 				],
 				locktime: 0
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_getAddressDetailsForInput');
 			sinon.spy(alveyd, '_getAddressDetailsForOutput');
@@ -3602,7 +3602,7 @@ describe('Qtum Service', function() {
 			var tx = {
 				height: 20,
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_getConfirmationsDetail');
 			alveyd.getDetailedTransaction = sinon.stub().callsArgWith(1, null, tx);
 			alveyd.height = 300;
@@ -3627,7 +3627,7 @@ describe('Qtum Service', function() {
 		});
 		it('give error from _getDetailedTransaction', function(done) {
 			var txid = '46f24e0c274fc07708b781963576c4c5d5625d926dbb0a17fa865dcd9fe58ea0';
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.getDetailedTransaction = sinon.stub().callsArgWith(1, new Error('test'));
 			alveyd._getAddressDetailedTransaction(txid, {}, function(err) {
 				err.should.be.instanceof(Error);
@@ -3643,7 +3643,7 @@ describe('Qtum Service', function() {
 				alveycore.Address('qU12Fa5RHM535kSDvywxPjCmbL7gwkQJZ6'),
 				alveycore.Address('qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU'),
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var strings = alveyd._getAddressStrings(addresses);
 			strings[0].should.equal('qU12Fa5RHM535kSDvywxPjCmbL7gwkQJZ6');
 			strings[1].should.equal('qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU');
@@ -3653,7 +3653,7 @@ describe('Qtum Service', function() {
 				'qU12Fa5RHM535kSDvywxPjCmbL7gwkQJZ6',
 				'qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU',
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var strings = alveyd._getAddressStrings(addresses);
 			strings[0].should.equal('qU12Fa5RHM535kSDvywxPjCmbL7gwkQJZ6');
 			strings[1].should.equal('qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU');
@@ -3663,7 +3663,7 @@ describe('Qtum Service', function() {
 				alveycore.Address('qU12Fa5RHM535kSDvywxPjCmbL7gwkQJZ6'),
 				'qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU',
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var strings = alveyd._getAddressStrings(addresses);
 			strings[0].should.equal('qU12Fa5RHM535kSDvywxPjCmbL7gwkQJZ6');
 			strings[1].should.equal('qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU');
@@ -3673,7 +3673,7 @@ describe('Qtum Service', function() {
 				alveycore.Address('qcSLSxN1sngCWSrKFZ6UC7ri4hhVSdq9SU'),
 				0,
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			(function() {
 				alveyd._getAddressStrings(addresses);
 			}).should.throw(TypeError);
@@ -3682,32 +3682,32 @@ describe('Qtum Service', function() {
 
 	describe('#_paginateTxids', function() {
 		it('slice txids based on "from" and "to" (3 to 13)', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var txids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 			var paginated = alveyd._paginateTxids(txids, 3, 13);
 			paginated.should.deep.equal([3, 4, 5, 6, 7, 8, 9, 10]);
 		});
 		it('slice txids based on "from" and "to" (0 to 3)', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var txids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 			var paginated = alveyd._paginateTxids(txids, 0, 3);
 			paginated.should.deep.equal([0, 1, 2]);
 		});
 		it('slice txids based on "from" and "to" (0 to 1)', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var txids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 			var paginated = alveyd._paginateTxids(txids, 0, 1);
 			paginated.should.deep.equal([0]);
 		});
 		it('will throw error if "from" is greater than "to"', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var txids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 			(function() {
 				alveyd._paginateTxids(txids, 1, 0);
 			}).should.throw('"from" (1) is expected to be less than "to"');
 		});
 		it('will handle string numbers', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var txids = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 			var paginated = alveyd._paginateTxids(txids, '1', '3');
 			paginated.should.deep.equal([1, 2]);
@@ -3721,7 +3721,7 @@ describe('Qtum Service', function() {
 			for (var i = 0; i < 101; i++) {
 				addresses.push(address);
 			}
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			alveyd.maxAddressesQuery = 100;
 			alveyd.getAddressHistory(addresses, {}, function(err) {
@@ -3732,7 +3732,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error with "from" and "to" range that exceeds max size', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_getAddressStrings');
 			alveyd.getAddressHistory(address, { from: 0, to: 51 }, function(err) {
@@ -3744,7 +3744,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error with "from" and "to" order is reversed', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_getAddressStrings');
 			alveyd.getAddressTxids = sinon.stub().callsArgWith(2, null, []);
@@ -3757,7 +3757,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from _getAddressDetailedTransaction', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_getAddressStrings');
 			alveyd.getAddressTxids = sinon.stub().callsArgWith(2, null, ['txid']);
@@ -3773,7 +3773,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('give error from getAddressTxids', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_getAddressStrings');
 			sinon.spy(alveyd, 'getAddressTxids');
@@ -3789,7 +3789,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will paginate', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_getAddressStrings');
 			sinon.spy(alveyd, '_paginateTxids');
@@ -3822,7 +3822,7 @@ describe('Qtum Service', function() {
 		var memtxid1 = 'dd23969aec657934d4e14e6ffb3aa7b48a7bdafef2eccd5fcc644f48c72e5116';
 		var memtxid2 = '28bf4485cc8f869bb8f2aa4beb8ba0a6da1059e0c8275d86ee1fa217dac0a924';
 		it('will handle error from getAddressTxids', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.push({
 				client: {
 					getAddressMempool: sinon.stub().callsArgWith(1, null, {
@@ -3846,7 +3846,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will handle error from getAddressBalance', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.push({
 				client: {
 					getAddressMempool: sinon.stub().callsArgWith(1, null, {
@@ -3870,7 +3870,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will handle error from client getAddressMempool', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.push({
 				client: {
 					getAddressMempool: sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' })
@@ -3888,7 +3888,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('should set all properties', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_paginateTxids');
@@ -3940,7 +3940,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error with "from" and "to" range that exceeds max size', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_normalizeAddressArg');
 
@@ -3978,7 +3978,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get from cache with noTxList', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_paginateTxids');
@@ -4032,7 +4032,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will skip querying the mempool with queryMempool set to false', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getAddressMempool = sinon.stub();
 			alveyd.nodes.push({
 				client: {
@@ -4061,7 +4061,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from _paginateTxids', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_paginateTxids');
 			var getAddressMempool = sinon.stub();
@@ -4097,7 +4097,7 @@ describe('Qtum Service', function() {
 		var blockhash = 'ba163051fc47fc78f520a01faae6356646e7465a139e2ca789ca3cfbcec96d64';
 		var blockhex = '00000020d4ff21181cebdf54168db98ee5334213f0b11173612775c91fa4d6856cf6afb65ffd0ea1254ec9da7eca0249dead0e4e0f8b1329f6efcb7bd3f3c8e9e4771e29106f785ab17e171a00000000bcb7d21fb5fd547ab6f0d138669fad4dac03d6201b2449d8febc9328ce4b9068ad54137042cbed624d778860d64e8598f15ff01afa47090721e16493e9ab8faa88ebeb7cd7e7cfeb98ef3d3fa69c1da7adea011f8cb7b264c5f9044b1e21ce3a01000000463044022049d003c095a2115053a58b60a65c741603de9c6449e20f3828525a215bc3de4802205c5cbd7f32c29a58883dfca2576d1454e61ab236865e904cf7e6a4fdaddca34d02020000000001010000000000000000000000000000000000000000000000000000000000000000ffffffff0503fe3d0100ffffffff020000000000000000000000000000000000266a24aa21a9ed598bdca4eab6001d5753ba33e9a50b1986649f4b477948b5f761decd6b742b4e0120000000000000000000000000000000000000000000000000000000000000000000000000020000000188ebeb7cd7e7cfeb98ef3d3fa69c1da7adea011f8cb7b264c5f9044b1e21ce3a010000004847304402201705c73821a6f91be123d1184aa6919f6bb8c86ec2928a793940078eec9d8a2502202234200415dd8c39d651cc4c17983dbf86f5cbc9385114c0f947db8838002a1801ffffffff0b00000000000000000000485d1b03000000232102ab266cbcd634d79269d7326deb622dd8abe83e5560734131cfebb40829213c72ac005a6202000000001976a914b29ec1e265ccb28ad6da4451eb9f275dcebc022688ac005a6202000000001976a9147fce39209069acc415e14ee3f506ee46f8bf644088ac005a6202000000001976a914b29ec1e265ccb28ad6da4451eb9f275dcebc022688ac005a6202000000001976a9145657742155679a88eb56bfe606163ceef3f42d8188ac005a6202000000001976a914ca01e35383979bdec15ce10a88cbdc6219ab3b0988ac005a6202000000001976a914a1bd7f3b948aa9a77c6486ad5f1ebfe247fab4d488ac005a6202000000001976a9149d7c71eff196e749c5ec71277f50d4aef006e4f988ac005a6202000000001976a9142820129a61e503e1fdecacd1133295ef51d2379a88ac005a6202000000001976a9145657742155679a88eb56bfe606163ceef3f42d8188ac00000000';
 		it('will give rpc error from client getblockhash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.nodes.push({
 				client: {
 					getBlockHash: sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' })
@@ -4110,7 +4110,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give rcp error from client getblock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 
 			sinon.spy(alveyd, '_tryAllClients');
 			alveyd.nodes.push({
@@ -4126,7 +4126,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will try all nodes for getblock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlockWithError = sinon.stub().callsArgWith(2, { code: -1, message: 'Test error' });
 			alveyd.tryAllInterval = 1;
 			alveyd.nodes.push({
@@ -4156,7 +4156,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get block from cache', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlock = sinon.stub().callsArgWith(2, null, {
 				result: blockhex
 			});
@@ -4182,7 +4182,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get block by height', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlock = sinon.stub().callsArgWith(2, null, {
 				result: blockhex
 			});
@@ -4210,7 +4210,7 @@ describe('Qtum Service', function() {
 	describe('#getBlock', function() {
 		var blockhex = '0100000000000000000000000000000000000000000000000000000000000000000000006db905142382324db417761891f2d2f355ea92f27ab0fc35e59e90b50e0534edf5d2af59ffff001fc1257000e965ffd002cd6ad0e2dc402b8044de833e06b23127ea8c3d80aec9141077149556e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b4210000000000000000000000000000000000000000000000000000000000000000ffffffff000101000000010000000000000000000000000000000000000000000000000000000000000000ffffffff420004bf91221d0104395365702030322c203230313720426974636f696e20627265616b732024352c30303020696e206c6174657374207072696365206672656e7a79ffffffff0100f2052a010000004341040d61d8653448c98731ee5fffd303c15e71ec2057b77f11ab3601979728cdaff2d68afbba14e4fa0bc44f2072b0b23ef63717f8cdfbe58dcd33f32b6afe98741aac00000000';
 		it('will give an rpc error from client getblock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlock = sinon.stub().callsArgWith(2, { code: -1, message: 'Test error' });
 			var getBlockHash = sinon.stub().callsArgWith(1, null, {});
@@ -4229,7 +4229,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give an rpc error from client getblockhash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' });
 			alveyd.nodes.push({
@@ -4245,7 +4245,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will getblock as alveycore object from height', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlock = sinon.stub().callsArgWith(2, null, {
 				result: blockhex
@@ -4271,7 +4271,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will getblock as alveycore object', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlock = sinon.stub().callsArgWith(2, null, {
 				result: blockhex
@@ -4295,7 +4295,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get block from cache', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlock = sinon.stub().callsArgWith(2, null, {
 				result: blockhex
@@ -4325,7 +4325,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get block from cache with height (but not height)', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlock = sinon.stub().callsArgWith(2, null, {
 				result: blockhex
@@ -4359,7 +4359,7 @@ describe('Qtum Service', function() {
 
 	describe('#getBlockHashesByTimestamp', function() {
 		it('should give an rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlockHashes = sinon.stub().callsArgWith(3, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -4374,7 +4374,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('should get the correct block hashes', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var block1 = 'a7efd3834b11c33c86841087d086d9c8a098c021b3c39c3133a085e32c7bdf46';
 			var block2 = 'a010c9c94c2eb1267ef00ea05218c414a8793e1ff7694a2fc20d02c365bdbb4a';
 			var getBlockHashes = sinon.stub().callsArgWith(3, null, {
@@ -4397,7 +4397,7 @@ describe('Qtum Service', function() {
 	describe('#getBlockHeader', function() {
 		var blockhash = 'a010c9c94c2eb1267ef00ea05218c414a8793e1ff7694a2fc20d02c365bdbb4a';
 		it('will give error from getBlockHash', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHash = sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' });
 			alveyd.nodes.push({
@@ -4411,7 +4411,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will give rpc error from client getblockheader', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHeader = sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' });
 			alveyd.nodes.push({
@@ -4425,7 +4425,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('it will give rpc error from client getblockhash', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlockHeader = sinon.stub();
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHash = sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' });
@@ -4441,7 +4441,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give result from client getblockheader (from height)', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var result = {
 				hash: 'a010c9c94c2eb1267ef00ea05218c414a8793e1ff7694a2fc20d02c365bdbb4a',
@@ -4492,7 +4492,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give result from client getblockheader (from hash)', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var result = {
 				hash: 'a010c9c94c2eb1267ef00ea05218c414a8793e1ff7694a2fc20d02c365bdbb4a',
@@ -4544,7 +4544,7 @@ describe('Qtum Service', function() {
 
 	describe('#_maybeGetBlockHash', function() {
 		it('will not get block hash with an address', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub();
 			alveyd.nodes.push({
@@ -4563,7 +4563,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will not get block hash with non zero-nine numeric string', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBlockHash = sinon.stub();
 			sinon.spy(alveyd, '_tryAllClients');
 			alveyd.nodes.push({
@@ -4582,7 +4582,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get the block hash if argument is a number', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub().callsArgWith(1, null, {
 				result: 'blockhash'
@@ -4603,7 +4603,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get the block hash if argument is a number (as string)', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub().callsArgWith(1, null, {
 				result: 'blockhash'
@@ -4624,7 +4624,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will try multiple nodes if one fails', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub().callsArgWith(1, null, {
 				result: 'blockhash'
@@ -4652,7 +4652,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from getBlockHash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub().callsArgWith(1, { code: -1, message: 'test' });
 			alveyd.tryAllInterval = 1;
@@ -4680,7 +4680,7 @@ describe('Qtum Service', function() {
 	describe('#getBlockOverview', function() {
 		var blockhash = 'a010c9c94c2eb1267ef00ea05218c414a8793e1ff7694a2fc20d02c365bdbb4a';
 		it('will handle error from maybeGetBlockHash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			alveyd._maybeGetBlockHash = sinon.stub().callsArgWith(1, new Error('test'));
 			alveyd.getBlockOverview(blockhash, function(err) {
@@ -4690,7 +4690,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give error from client.getBlock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlock = sinon.stub().callsArgWith(2, { code: -1, message: 'test' });
 			alveyd.nodes.push({
@@ -4706,7 +4706,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give expected result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var blockResult = {
 				hash: blockhash,
@@ -4763,7 +4763,7 @@ describe('Qtum Service', function() {
 
 	describe('#estimateFee', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var estimateFee = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -4778,7 +4778,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call client estimateFee and give result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var estimateFee = sinon.stub().callsArgWith(1, null, {
 				result: -1
 			});
@@ -4801,7 +4801,7 @@ describe('Qtum Service', function() {
 	describe('#sendTransaction', function(done) {
 		var tx = alveycore.Transaction(txhex);
 		it('will give rpc error', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var sendRawTransaction = sinon.stub().callsArgWith(2, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -4815,7 +4815,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will send to client and get hash', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var sendRawTransaction = sinon.stub().callsArgWith(2, null, {
 				result: tx.hash
 			});
@@ -4833,7 +4833,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will send to client with absurd fees and get hash', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var sendRawTransaction = sinon.stub().callsArgWith(2, null, {
 				result: tx.hash
 			});
@@ -4851,7 +4851,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('missing callback will throw error', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var sendRawTransaction = sinon.stub().callsArgWith(2, null, {
 				result: tx.hash
 			});
@@ -4870,7 +4870,7 @@ describe('Qtum Service', function() {
 
 	describe('#getRawTransaction', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getRawTransaction = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			sinon.spy(alveyd, '_tryAllClients');
 			alveyd.nodes.push({
@@ -4887,7 +4887,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will try all nodes', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.tryAllInterval = 1;
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransactionWithError = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
@@ -4922,7 +4922,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get from cache', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getRawTransaction = sinon.stub().callsArgWith(1, null, {
 				result: txhex
 			});
@@ -4952,7 +4952,7 @@ describe('Qtum Service', function() {
 
 	describe('#getTransaction', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransaction = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			alveyd.nodes.push({
@@ -4968,7 +4968,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will try all nodes', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.tryAllInterval = 1;
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransactionWithError = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
@@ -5003,7 +5003,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will get from cache', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransaction = sinon.stub().callsArgWith(1, null, {
 				result: txhex
@@ -5085,7 +5085,7 @@ describe('Qtum Service', function() {
 		};
 
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			alveyd.nodes.push({
 				client: {
@@ -5101,7 +5101,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('should give a transaction with all properties', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransaction = sinon.stub().callsArgWith(2, null, {
 				result: rpcRawTransaction
@@ -5161,7 +5161,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('should set coinbase to true', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			delete rawTransaction.vin[0];
@@ -5190,7 +5190,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will not include address if address length is zero', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			rawTransaction.vout[0].scriptPubKey.addresses = [];
@@ -5212,7 +5212,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will not include address if address length is greater than 1', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			rawTransaction.vout[0].scriptPubKey.addresses = ['one', 'two'];
@@ -5234,7 +5234,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will handle scriptPubKey.addresses not being set', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			delete rawTransaction.vout[0].scriptPubKey['addresses'];
@@ -5256,7 +5256,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will not include script if input missing scriptSig or coinbase', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			delete rawTransaction.vin[0].scriptSig;
@@ -5279,7 +5279,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will set height to -1 if missing height and get time from raw transaction', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			delete rawTransaction.height;
@@ -5306,7 +5306,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will set height to -1 if missing height and get time from mempoolentry', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var rawTransaction = JSON.parse((JSON.stringify(rpcRawTransaction)));
 			delete rawTransaction.time;
@@ -5339,7 +5339,7 @@ describe('Qtum Service', function() {
 
 	describe('#getBestBlockHash', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -5354,7 +5354,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call client getInfo and give result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getBestBlockHash = sinon.stub().callsArgWith(0, null, {
 				result: '0c9d2f58e10d9089c8543f1a519023eef5f73e659258b1a433e8cc9296a42e72'
 			});
@@ -5377,7 +5377,7 @@ describe('Qtum Service', function() {
 
 	describe('#getSpentInfo', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getSpentInfo = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -5392,7 +5392,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will empty object when not found', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getSpentInfo = sinon.stub().callsArgWith(1, { message: 'test', code: -5 });
 			alveyd.nodes.push({
 				client: {
@@ -5407,7 +5407,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call client getSpentInfo and give result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getSpentInfo = sinon.stub().callsArgWith(1, null, {
 				result: {
 					txid: 'txid',
@@ -5435,7 +5435,7 @@ describe('Qtum Service', function() {
 
 	describe('#getInfo', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getInfo = sinon.stub().callsArgWith(0, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -5449,7 +5449,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call client getInfo and give result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.node.getNetworkName = sinon.stub().returns('testnet');
 			var getInfo = sinon.stub().callsArgWith(0, null, {
 				result: {
@@ -5517,7 +5517,7 @@ describe('Qtum Service', function() {
 
 	describe('#generateBlock', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var generate = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -5532,7 +5532,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will call client generate and give result', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var generate = sinon.stub().callsArgWith(1, null, {
 				result: ['hash']
 			});
@@ -5555,11 +5555,11 @@ describe('Qtum Service', function() {
 
 	describe('#stop', function() {
 		it('will callback if spawn is not set', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.stop(done);
 		});
 		it('will exit spawned process', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.spawn = {};
 			alveyd.spawn.process = new EventEmitter();
 			alveyd.spawn.process.kill = sinon.stub();
@@ -5569,7 +5569,7 @@ describe('Qtum Service', function() {
 			alveyd.spawn.process.emit('exit', 0);
 		});
 		it('will give error with non-zero exit status code', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.spawn = {};
 			alveyd.spawn.process = new EventEmitter();
 			alveyd.spawn.process.kill = sinon.stub();
@@ -5583,7 +5583,7 @@ describe('Qtum Service', function() {
 			alveyd.spawn.process.emit('exit', 1);
 		});
 		it('will stop after timeout', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.shutdownTimeout = 300;
 			alveyd.spawn = {};
 			alveyd.spawn.process = new EventEmitter();
@@ -5599,7 +5599,7 @@ describe('Qtum Service', function() {
 
 	describe('#getAddressesMempoolBalance', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			var getAddressMempool = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			alveyd.nodes.push({
@@ -5634,7 +5634,7 @@ describe('Qtum Service', function() {
 					prevout: 2
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_normalizeAddressArg');
 			sinon.spy(alveyd, '_getBalanceFromMempool');
 			var getAddressMempool = sinon.stub().callsArgWith(1, null, {
@@ -5658,7 +5658,7 @@ describe('Qtum Service', function() {
 
 	describe('#getJsonRawTransaction', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransaction = sinon.stub().callsArgWith(2, { message: 'error', code: -1 });
 			alveyd.nodes.push({
@@ -5853,7 +5853,7 @@ describe('Qtum Service', function() {
 				"time": 1517638448,
 				"blocktime": 1517638448
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransaction = sinon.stub().callsArgWith(2, null, {
 				result: jsonRawTransaction,
@@ -6050,7 +6050,7 @@ describe('Qtum Service', function() {
 				"time": 1517638448,
 				"blocktime": 1517638448
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getRawTransaction = sinon.stub().callsArgWith(2, null, {
 				result: jsonRawTransaction,
@@ -6077,7 +6077,7 @@ describe('Qtum Service', function() {
 
 	describe('#getSubsidy', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getSubsidy = sinon.stub().callsArgWith(1, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -6092,7 +6092,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give subsidy', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getSubsidy = sinon.stub().callsArgWith(1, null, {
 				result: 2000000000000
 			});
@@ -6109,7 +6109,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give subsidy from cache', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getSubsidy = sinon.stub().callsArgWith(1, null, {
 				result: 2000000000000
 			});
@@ -6132,7 +6132,7 @@ describe('Qtum Service', function() {
 
 	describe('#getJsonBlock', function() {
 		it('will give rpc error from getBlockHash', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlockHash = sinon.stub().callsArgWith(1, { code: -1, message: 'Test error' });
 			alveyd.nodes.push({
@@ -6149,7 +6149,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give rpc error from getBlock', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getBlock = sinon.stub().callsArgWith(2, { code: -1, message: 'Test error' });
 			alveyd.nodes.push({
@@ -6195,7 +6195,7 @@ describe('Qtum Service', function() {
 				"modifier": "45d77baa32c1efcd3c6781d493b797beadb797ccac2bc9d2fcdcd0d2be5a8d9b",
 				"signature": "30440220692319536ca710ee3a88ab1a7340836580e36e238a6832e1d8e524f144bba95b0220299bde798cf5190fa3022058d3d3cf6a0383b57277fc193aeebd7c9ba33194de"
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHash = sinon.stub().callsArgWith(1, null, {
@@ -6250,7 +6250,7 @@ describe('Qtum Service', function() {
 				"modifier": "45d77baa32c1efcd3c6781d493b797beadb797ccac2bc9d2fcdcd0d2be5a8d9b",
 				"signature": "30440220692319536ca710ee3a88ab1a7340836580e36e238a6832e1d8e524f144bba95b0220299bde798cf5190fa3022058d3d3cf6a0383b57277fc193aeebd7c9ba33194de"
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHash = sinon.stub();
@@ -6303,7 +6303,7 @@ describe('Qtum Service', function() {
 				"modifier": "45d77baa32c1efcd3c6781d493b797beadb797ccac2bc9d2fcdcd0d2be5a8d9b",
 				"signature": "30440220692319536ca710ee3a88ab1a7340836580e36e238a6832e1d8e524f144bba95b0220299bde798cf5190fa3022058d3d3cf6a0383b57277fc193aeebd7c9ba33194de"
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHash = sinon.stub().callsArgWith(1, null, {
@@ -6365,7 +6365,7 @@ describe('Qtum Service', function() {
 				"modifier": "45d77baa32c1efcd3c6781d493b797beadb797ccac2bc9d2fcdcd0d2be5a8d9b",
 				"signature": "30440220692319536ca710ee3a88ab1a7340836580e36e238a6832e1d8e524f144bba95b0220299bde798cf5190fa3022058d3d3cf6a0383b57277fc193aeebd7c9ba33194de"
 			};
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			sinon.spy(alveyd, '_maybeGetBlockHash');
 			var getBlockHash = sinon.stub();
@@ -6406,14 +6406,14 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will not add an invalid address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter = new EventEmitter();
 			alveyd.subscribeBalance(emitter, ['invalidaddress']);
 			should.not.exist(alveyd.subscriptions.balance['invalidaddress']);
 			log.info.callCount.should.equal(1);
 		});
 		it('will add a valid address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter = new EventEmitter();
 			alveyd.subscribeBalance(emitter, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 			should.exist(alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -6421,7 +6421,7 @@ describe('Qtum Service', function() {
 
 		});
 		it('will handle multiple address subscribers', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscribeBalance(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -6431,7 +6431,7 @@ describe('Qtum Service', function() {
 			log.info.callCount.should.equal(2);
 		});
 		it('will not add the same emitter twice', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			alveyd.subscribeBalance(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 			alveyd.subscribeBalance(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -6450,7 +6450,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('it will remove a subscription', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscribeBalance(emitter1, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
@@ -6462,7 +6462,7 @@ describe('Qtum Service', function() {
 			log.info.callCount.should.equal(3);
 		});
 		it('will unsubscribe subscriptions for an emitter', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -6471,7 +6471,7 @@ describe('Qtum Service', function() {
 			log.info.callCount.should.equal(1);
 		});
 		it('will NOT unsubscribe subscription with missing address', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -6480,7 +6480,7 @@ describe('Qtum Service', function() {
 			log.info.callCount.should.equal(1);
 		});
 		it('will NOT unsubscribe subscription with missing emitter', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter2];
@@ -6490,7 +6490,7 @@ describe('Qtum Service', function() {
 			log.info.callCount.should.equal(1);
 		});
 		it('will remove empty addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -6500,7 +6500,7 @@ describe('Qtum Service', function() {
 			log.info.callCount.should.equal(2);
 		});
 		it('will unsubscribe emitter for all addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -6523,7 +6523,7 @@ describe('Qtum Service', function() {
 			sandbox.restore();
 		});
 		it('will unsubscribe emitter for all addresses', function() {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var emitter1 = new EventEmitter();
 			var emitter2 = new EventEmitter();
 			alveyd.subscriptions.balance['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'] = [emitter1, emitter2];
@@ -6554,7 +6554,7 @@ describe('Qtum Service', function() {
 			var addresses = [
 				'qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z'
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_notifyBalanceSubscriber');
 			alveyd._getAddressesFromTransaction = sinon.stub().returns(addresses);
 			alveyd.getAddressSummary = sinon.stub().callsArgWith(2, null, {
@@ -6601,7 +6601,7 @@ describe('Qtum Service', function() {
 		it('will notify balance subscriber', function(done) {
 			var emitter = new EventEmitter();
 			sinon.spy(emitter, 'emit');
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			alveyd.subscribeBalance(emitter, ['qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z']);
 			alveyd.getAddressSummary = sinon.stub().callsArgWith(2, null, {
 				address: 'qfFYCmU7ACsDUbor4Do9AP1XxkocEKhs3z',
@@ -6635,7 +6635,7 @@ describe('Qtum Service', function() {
 
 	describe('#listUnspent', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var listUnspent = sinon.stub().callsArgWith(3, { message: 'error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -6663,7 +6663,7 @@ describe('Qtum Service', function() {
 					"solvable": true
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var listUnspent = sinon.stub().callsArgWith(3, null, {
 				result: list
 			});
@@ -6683,7 +6683,7 @@ describe('Qtum Service', function() {
 
 	describe('#getNewAddress', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getNewAddress = sinon.stub().callsArgWith(0, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -6698,7 +6698,7 @@ describe('Qtum Service', function() {
 			});
 		});
 		it('will give new address', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getNewAddress = sinon.stub().callsArgWith(0, null, {
 				result: 'qZLdL7mAQNPHYeBHHtLerPPWNXTTPucEGA',
 			});
@@ -6718,7 +6718,7 @@ describe('Qtum Service', function() {
 
 	describe('#callContract', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var callContract = sinon.stub().callsArgWith(3, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -6754,7 +6754,7 @@ describe('Qtum Service', function() {
 				}
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var callContract = sinon.stub().callsArgWith(3, null, {
 				result: callContractResult,
 			});
@@ -6774,7 +6774,7 @@ describe('Qtum Service', function() {
 
 	describe('#getAccountInfo', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getAccountInfo = sinon.stub().callsArgWith(1, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
 				client: {
@@ -7076,7 +7076,7 @@ describe('Qtum Service', function() {
 				"code": "6060604052600436106100c45763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166306fdde0381146100c9578063095ea7b31461015357806318160ddd1461018957806323b872dd146101ae578063313ce567146101d65780633542aee2146101e957806370a082311461020b5780638da5cb5b1461022a57806395d89b4114610259578063a9059cbb1461026c578063dd62ed3e1461028e578063f2fde38b146102b3578063f7abab9e146102d4575b600080fd5b34156100d457600080fd5b6100dc6102e7565b60405160208082528190810183818151815260200191508051906020019080838360005b83811015610118578082015183820152602001610100565b50505050905090810190601f1680156101455780820380516001836020036101000a031916815260200191505b509250505060405180910390f35b341561015e57600080fd5b610175600160a060020a036004351660243561031e565b604051901515815260200160405180910390f35b341561019457600080fd5b61019c6103c4565b60405190815260200160405180910390f35b34156101b957600080fd5b610175600160a060020a03600435811690602435166044356103ca565b34156101e157600080fd5b61019c6104f4565b34156101f457600080fd5b610175600160a060020a03600435166024356104f9565b341561021657600080fd5b61019c600160a060020a0360043516610528565b341561023557600080fd5b61023d610543565b604051600160a060020a03909116815260200160405180910390f35b341561026457600080fd5b6100dc610552565b341561027757600080fd5b610175600160a060020a0360043516602435610589565b341561029957600080fd5b61019c600160a060020a036004358116906024351661065f565b34156102be57600080fd5b6102d2600160a060020a036004351661068a565b005b34156102df57600080fd5b61019c6106e9565b60408051908101604052600b81527f426f64686920546f6b656e000000000000000000000000000000000000000000602082015281565b60008115806103505750600160a060020a03338116600090815260026020908152604080832093871683529290522054155b151561035b57600080fd5b600160a060020a03338116600081815260026020908152604080832094881680845294909152908190208590557f8c5be1e5ebec7d5bd14f71427d1e84f3dd0314c0f7b2291e5b200ac8c7c3b9259085905190815260200160405180910390a350600192915050565b60005481565b600080600160a060020a03841615156103e257600080fd5b50600160a060020a03808516600081815260026020908152604080832033909516835293815283822054928252600190529190912054610428908463ffffffff6106f416565b600160a060020a03808716600090815260016020526040808220939093559086168152205461045d908463ffffffff61070616565b600160a060020a038516600090815260016020526040902055610486818463ffffffff6106f416565b600160a060020a03808716600081815260026020908152604080832033861684529091529081902093909355908616917fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9086905190815260200160405180910390a3506001949350505050565b600881565b60035460009033600160a060020a0390811691161461051757600080fd5b6105218383610715565b9392505050565b600160a060020a031660009081526001602052604090205490565b600354600160a060020a031681565b60408051908101604052600381527f424f540000000000000000000000000000000000000000000000000000000000602082015281565b6000600160a060020a03831615156105a057600080fd5b600160a060020a0333166000908152600160205260409020546105c9908363ffffffff6106f416565b600160a060020a0333811660009081526001602052604080822093909355908516815220546105fe908363ffffffff61070616565b600160a060020a0380851660008181526001602052604090819020939093559133909116907fddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef9085905190815260200160405180910390a350600192915050565b600160a060020a03918216600090815260026020908152604080832093909416825291909152205490565b60035433600160a060020a039081169116146106a557600080fd5b600160a060020a03811615156106ba57600080fd5b6003805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a0392909216919091179055565b662386f26fc1000081565b60008282111561070057fe5b50900390565b60008282018381101561052157fe5b60008054819061072b908463ffffffff61070616565b9050662386f26fc1000081111561074157600080fd5b6000805484018155600160a060020a03851681526001602052604090205461076f908463ffffffff61070616565b600160a060020a038516600081815260016020526040808220939093555490917f4e3883c75cc9c752bb1db2e406a822e4a75067ae77ad9a0a4d179f2709b9e1f6919086905191825260208201526040908101905180910390a250600193925050505600a165627a7a723058209fee18012e751567d5362aa378208f048925363b5acd296dcdaddf8ea8eeb8d50029"
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			var getAccountInfo = sinon.stub().callsArgWith(1, null, {
 				result: accountInfo,
 			});
@@ -7096,7 +7096,7 @@ describe('Qtum Service', function() {
 
 	describe('#getTransactionReceipt', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getTransactionReceipt = sinon.stub().callsArgWith(1, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
@@ -7136,7 +7136,7 @@ describe('Qtum Service', function() {
 					]
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getTransactionReceipt = sinon.stub().callsArgWith(1, null, {
 				result: transactionReceipt,
@@ -7178,7 +7178,7 @@ describe('Qtum Service', function() {
 					]
 				}
 			];
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getTransactionReceipt = sinon.stub().callsArgWith(1, null, {
 				result: transactionReceipt,
@@ -7205,7 +7205,7 @@ describe('Qtum Service', function() {
 
 	describe('#getDgpInfo', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getDgpInfo = sinon.stub().callsArgWith(0, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
@@ -7228,7 +7228,7 @@ describe('Qtum Service', function() {
 				"blockgaslimit": 40000000
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getDgpInfo = sinon.stub().callsArgWith(0, null, {
 				result: dpgInfo,
@@ -7253,7 +7253,7 @@ describe('Qtum Service', function() {
 				"blockgaslimit": 40000000
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getDgpInfo = sinon.stub().callsArgWith(0, null, {
 				result: dpgInfo,
@@ -7280,7 +7280,7 @@ describe('Qtum Service', function() {
 
 	describe('#getMiningInfo', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getMiningInfo = sinon.stub().callsArgWith(0, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
@@ -7321,7 +7321,7 @@ describe('Qtum Service', function() {
 				"chain": "test"
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getMiningInfo = sinon.stub().callsArgWith(0, null, {
 				result: miningInfo,
@@ -7364,7 +7364,7 @@ describe('Qtum Service', function() {
 				"chain": "test"
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getMiningInfo = sinon.stub().callsArgWith(0, null, {
 				result: miningInfo,
@@ -7391,7 +7391,7 @@ describe('Qtum Service', function() {
 
 	describe('#getStakingInfo', function() {
 		it('will give rpc error', function(done) {
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getStakingInfo = sinon.stub().callsArgWith(0, { message: 'Test error', code: -1 });
 			alveyd.nodes.push({
@@ -7422,7 +7422,7 @@ describe('Qtum Service', function() {
 				"expectedtime": 0
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getStakingInfo = sinon.stub().callsArgWith(0, null, {
 				result: stakingInfo,
@@ -7455,7 +7455,7 @@ describe('Qtum Service', function() {
 				"expectedtime": 0
 			};
 
-			var alveyd = new QtumService(baseConfig);
+			var alveyd = new AlveyService(baseConfig);
 			sinon.spy(alveyd, '_tryAllClients');
 			var getStakingInfo = sinon.stub().callsArgWith(0, null, {
 				result: stakingInfo,
