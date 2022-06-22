@@ -13,7 +13,7 @@ A ALV full node for building applications and services with Node.js. A node is e
     ```  
 2. Install mongo https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/  
 
-3. Install alvey-bitcore https://github.com/alveyproject/alvey-bitcore - with ZMQ ! 
+3. Install alvey-bitcore https://github.com/alveycoin/alvey-bitcore - with ZMQ ! 
 
     ```bash
     # with ZMQ
@@ -22,7 +22,7 @@ A ALV full node for building applications and services with Node.js. A node is e
 4. Install alveycore-node  
 
     ```bash
-    npm i https://github.com/alveyproject/alveycore-node.git#master
+    npm i https://github.com/alveycoin/alveycore-node.git#master
 
     $(npm bin)/alveycore-node create mynode
 
@@ -79,8 +79,8 @@ A ALV full node for building applications and services with Node.js. A node is e
 
 There are several add-on services available to extend the functionality of Alveycore:
 
-- [ALV Insight API](https://github.com/alveyproject/insight-api)
-- [ALV Explorer](https://github.com/alveyproject/alvey-explorer)
+- [ALV Insight API](https://github.com/alveycoin/insight-api)
+- [ALV Explorer](https://github.com/alveycoin/alvey-explorer)
 
 ## Contributing
 
